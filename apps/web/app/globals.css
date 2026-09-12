@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+:root {
+  /* Canvas & Surfaces */
+  --bg-canvas: #f6f4ef;
+  --surface-card: #ffffff;
+  --surface-muted: #eceae4;
+  --surface-subtle: #f1efea;
+  --surface-dark: #202522;
+
+  /* Text Hierarchy */
+  --text-primary: #202522;
+  --text-secondary: #656a63;
+  --text-muted: #858980;
+
+  /* Structural Borders */
+  --border-default: #d7d5ce;
+  --border-strong: #b8b6af;
+
+  /* Brand Accents — Architectural Gold */
+  --gold-primary: #b47a32;
+  --gold-hover: #8f5d22;
+  --gold-soft: #f3e2c4;
+
+  /* Secondary Accents — Workspace Teal */
+  --teal-primary: #286c68;
+  --teal-hover: #1c4e4b;
+  --teal-soft: #d4e5e3;
+
+  /* Functional Accents */
+  --terracotta-primary: #b85445;
+  --terracotta-soft: #f7ddd9;
+  --amber-primary: #c98a2c;
+  --amber-soft: #f8edd6;
+
+  /* Radii */
+  --radius-button: 6px;
+  --radius-card: 8px;
+  --radius-badge: 4px;
+}
+
+@theme {
+  --color-canvas: var(--bg-canvas);
+  --color-surface-card: var(--surface-card);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-dark: var(--surface-dark);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-border: var(--border-default);
+  --color-border-strong: var(--border-strong);
+
+  --color-gold: var(--gold-primary);
+  --color-gold-hover: var(--gold-hover);
+  --color-gold-soft: var(--gold-soft);
+
+  --color-teal: var(--teal-primary);
+  --color-teal-hover: var(--teal-hover);
+  --color-teal-soft: var(--teal-soft);
+
+  --color-terracotta: var(--terracotta-primary);
+  --color-terracotta-soft: var(--terracotta-soft);
+
+  --font-serif: var(--font-source-serif), Georgia, serif;
+  --font-sans: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-serif);
+}

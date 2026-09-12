@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: coworkflow-db
+    environment:
+      POSTGRES_USER: coworkflow
+      POSTGRES_PASSWORD: coworkflow_dev_password
+      POSTGRES_DB: coworkflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coworkflow -d coworkflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: dev
+    container_name: coworkflow-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: "postgresql://coworkflow:coworkflow_dev_password@postgres:5432/coworkflow"
+      JWT_SECRET: "dev_jwt_secret_at_least_32_characters_long"
+      PORT: 4000
+      NODE_ENV: "development"
+      CORS_ORIGIN: "http://localhost:3000"
+    volumes:
+      - ./apps/api:/app/apps/api
+      - /app/apps/api/node_modules
+      - ./packages/types:/app/packages/types
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: dev
+    container_name: coworkflow-web
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:4000/api/v1"
+      NODE_ENV: "development"
+    volumes:
+      - ./apps/web:/app/apps/web
+      - /app/apps/web/node_modules
+      - ./packages/types:/app/packages/types
+
+volumes:
+  pgdata:

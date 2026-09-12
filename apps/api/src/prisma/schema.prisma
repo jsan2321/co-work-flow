@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  MEMBER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  DEACTIVATED
+}
+
+enum LocationStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum SpaceType {
+  DESK
+  MEETING_ROOM
+  PRIVATE_OFFICE
+}
+
+enum SpaceStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ReservationStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  firstName    String     @map("first_name")
+  lastName     String     @map("last_name")
+  role         UserRole   @default(MEMBER)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+
+  reservations          Reservation[]  @relation("MemberReservations")
+  cancelledReservations Reservation[]  @relation("CancelledByUser")
+  auditLogs             AuditLog[]
+  refreshTokens         RefreshToken[]
+
+  @@map("user")
+}
+
+model Location {
+  id        String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  address   String
+  timezone  String
+  status    LocationStatus @default(ACTIVE)
+  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+
+  spaces Space[]
+
+  @@map("location")
+}
+
+model Space {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  locationId  String      @map("location_id") @db.Uuid
+  name        String
+  type        SpaceType
+  capacity    Int
+  description String?
+  amenities   String[]    @default([])
+  status      SpaceStatus @default(ACTIVE)
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  location     Location      @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  reservations Reservation[]
+
+  @@index([locationId])
+  @@map("space")
+}
+
+model Reservation {
+  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId             String            @map("user_id") @db.Uuid
+  spaceId            String            @map("space_id") @db.Uuid
+  startAt            DateTime          @map("start_at") @db.Timestamptz
+  endAt              DateTime          @map("end_at") @db.Timestamptz
+  status             ReservationStatus @default(CONFIRMED)
+  purpose            String?
+  cancelledAt        DateTime?         @map("cancelled_at") @db.Timestamptz
+  cancelledByUserId  String?           @map("cancelled_by_user_id") @db.Uuid
+  cancellationReason String?           @map("cancellation_reason")
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime          @updatedAt @map("updated_at") @db.Timestamptz
+
+  user            User  @relation("MemberReservations", fields: [userId], references: [id], onDelete: Restrict)
+  space           Space @relation(fields: [spaceId], references: [id], onDelete: Restrict)
+  cancelledByUser User? @relation("CancelledByUser", fields: [cancelledByUserId], references: [id], onDelete: SetNull)
+
+  @@index([spaceId])
+  @@index([userId])
+  @@map("reservation")
+}
+
+model RefreshToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  tokenHash String   @map("token_hash")
+  familyId  String   @map("family_id") @db.Uuid
+  isRevoked Boolean  @default(false) @map("is_revoked")
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([userId])
+  @@map("refresh_token")
+}
+
+model AuditLog {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorUserId   String?  @map("actor_user_id") @db.Uuid
+  action        String
+  entityType    String   @map("entity_type")
+  entityId      String   @map("entity_id") @db.Uuid
+  metadata      Json     @default("{}")
+  correlationId String   @map("correlation_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  actorUser User? @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([correlationId])
+  @@map("audit_log")
+}
