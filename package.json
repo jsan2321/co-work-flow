@@ -14,7 +14,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npm run test --workspaces --if-present",
+    "test": "npm run test --workspace=@coworkflow/api",
+    "test:concurrency": "npm run test:concurrency --workspace=@coworkflow/api",
+    "test:e2e": "npm run test --workspace=@coworkflow/e2e",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f"

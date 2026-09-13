@@ -150,3 +150,95 @@ export interface ReadyResponse {
   database: "connected" | "disconnected";
   error?: string;
 }
+
+// ============================================================================
+// Auth & User DTOs
+// ============================================================================
+
+export interface UserDto {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  status: UserStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RegisterInput {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  user: UserDto;
+}
+
+export interface TokenPayload {
+  sub: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface UpdateProfileInput {
+  firstName?: string;
+  lastName?: string;
+}
+
+// ============================================================================
+// Space & Availability DTOs
+// ============================================================================
+
+export interface SpaceDto extends Space {
+  location?: Location;
+}
+
+export interface SpaceFilterQuery {
+  type?: SpaceType;
+  minCapacity?: number;
+  amenities?: string[];
+  status?: SpaceStatus;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface TimeIntervalDto {
+  startAt: string;
+  endAt: string;
+}
+
+export interface SpaceAvailabilityResponse {
+  spaceId: string;
+  intervals: TimeIntervalDto[];
+}
+
+// ============================================================================
+// Reservation DTOs
+// ============================================================================
+
+export interface CreateReservationInput {
+  spaceId: string;
+  startAt: string;
+  endAt: string;
+  purpose?: string;
+}
+
+export interface ReservationDto extends Reservation {
+  space?: SpaceDto;
+  user?: UserDto;
+}
+
+export interface ReservationFilterQuery {
+  status?: ReservationStatus;
+  page?: number;
+  pageSize?: number;
+}

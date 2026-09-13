@@ -8,12 +8,18 @@ import {
   errorHandlerMiddleware,
   notFoundHandlerMiddleware,
 } from "./shared/middleware/error-handler.js";
+import helmet from "helmet";
 import { healthRouter } from "./modules/health/health.routes.js";
+import { authRouter } from "./modules/auth/auth.routes.js";
+import { usersRouter } from "./modules/users/users.routes.js";
+import { spacesRouter } from "./modules/spaces/spaces.routes.js";
+import { reservationsRouter } from "./modules/reservations/reservations.routes.js";
 
 export function createApp(): Express {
   const app = express();
 
   // Basic security and parsing middleware
+  app.use(helmet());
   app.use(
     cors({
       origin: process.env.CORS_ORIGIN || "http://localhost:3000",
@@ -41,9 +47,15 @@ export function createApp(): Express {
     })
   );
 
-  // Mount operational health endpoints (Root and API versioned)
+  // Operational health endpoints
   app.use("/", healthRouter);
   app.use("/api/v1", healthRouter);
+
+  // Domain routes
+  app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/users", usersRouter);
+  app.use("/api/v1/spaces", spacesRouter);
+  app.use("/api/v1/reservations", reservationsRouter);
 
   // 404 & Error Handlers
   app.use(notFoundHandlerMiddleware);

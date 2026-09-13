@@ -3,7 +3,7 @@ import request from "supertest";
 import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/prisma/client.js";
 
-describe("Live DB Integration Test — Health Probes (FR-HEALTH-001)", () => {
+describe("Live DB Integration Test — Health Probes", () => {
   const app = createApp();
 
   afterAll(async () => {

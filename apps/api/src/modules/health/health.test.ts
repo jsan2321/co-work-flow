@@ -3,7 +3,7 @@ import request from "supertest";
 import { createApp } from "../../app.js";
 import { prisma } from "../../prisma/client.js";
 
-describe("Health & Readiness Probes (FR-HEALTH-001)", () => {
+describe("Health & Readiness Probes", () => {
   const app = createApp();
 
   beforeEach(() => {
