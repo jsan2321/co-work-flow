@@ -23,6 +23,29 @@ export interface ISpacesRepository {
     startDate: Date,
     endDate: Date
   ): Promise<ConfirmedInterval[]>;
+  create(data: {
+    locationId: string;
+    name: string;
+    type: "DESK" | "MEETING_ROOM" | "PRIVATE_OFFICE";
+    capacity: number;
+    description?: string;
+    amenities?: string[];
+  }): Promise<SpaceWithLocation>;
+  update(
+    id: string,
+    data: {
+      locationId?: string;
+      name?: string;
+      type?: "DESK" | "MEETING_ROOM" | "PRIVATE_OFFICE";
+      capacity?: number;
+      description?: string;
+      amenities?: string[];
+    }
+  ): Promise<SpaceWithLocation>;
+  updateStatus(
+    id: string,
+    status: "ACTIVE" | "INACTIVE"
+  ): Promise<SpaceWithLocation>;
 }
 
 export interface ISpacesService {
@@ -36,4 +59,35 @@ export interface ISpacesService {
     startDate: Date,
     endDate: Date
   ): Promise<{ spaceId: string; intervals: TimeIntervalDto[] }>;
+  createSpace(
+    adminUserId: string,
+    correlationId: string,
+    input: {
+      locationId: string;
+      name: string;
+      type: "DESK" | "MEETING_ROOM" | "PRIVATE_OFFICE";
+      capacity: number;
+      description?: string;
+      amenities?: string[];
+    }
+  ): Promise<SpaceDto>;
+  updateSpace(
+    adminUserId: string,
+    correlationId: string,
+    id: string,
+    input: {
+      locationId?: string;
+      name?: string;
+      type?: "DESK" | "MEETING_ROOM" | "PRIVATE_OFFICE";
+      capacity?: number;
+      description?: string;
+      amenities?: string[];
+    }
+  ): Promise<SpaceDto>;
+  updateSpaceStatus(
+    adminUserId: string,
+    correlationId: string,
+    id: string,
+    status: "ACTIVE" | "INACTIVE"
+  ): Promise<SpaceDto>;
 }

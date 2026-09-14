@@ -1,5 +1,6 @@
 import { prisma } from "./client.js";
 import { applyGistConstraint } from "./apply-gist-constraint.js";
+import { applyAuditImmutability } from "./apply-audit-immutability.js";
 import { hashPassword } from "../shared/utils/crypto.js";
 
 export async function seed(): Promise<{
@@ -7,8 +8,9 @@ export async function seed(): Promise<{
   adminId: string;
   memberId: string;
 }> {
-  // Ensure PostgreSQL exclusion constraint is applied
+  // Ensure PostgreSQL exclusion constraint and audit immutability are applied
   await applyGistConstraint();
+  await applyAuditImmutability();
 
   // 1. Seed MVP Location
   const location = await prisma.location.upsert({

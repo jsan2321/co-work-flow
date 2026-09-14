@@ -86,6 +86,70 @@ export class SpacesRepository implements ISpacesRepository {
 
     return reservations;
   }
+
+  async create(data: {
+    locationId: string;
+    name: string;
+    type: "DESK" | "MEETING_ROOM" | "PRIVATE_OFFICE";
+    capacity: number;
+    description?: string;
+    amenities?: string[];
+  }): Promise<SpaceWithLocation> {
+    return prisma.space.create({
+      data: {
+        locationId: data.locationId,
+        name: data.name,
+        type: data.type,
+        capacity: data.capacity,
+        description: data.description,
+        amenities: data.amenities ?? [],
+        status: "ACTIVE",
+      },
+      include: {
+        location: true,
+      },
+    });
+  }
+
+  async update(
+    id: string,
+    data: {
+      locationId?: string;
+      name?: string;
+      type?: "DESK" | "MEETING_ROOM" | "PRIVATE_OFFICE";
+      capacity?: number;
+      description?: string;
+      amenities?: string[];
+    }
+  ): Promise<SpaceWithLocation> {
+    return prisma.space.update({
+      where: { id },
+      data: {
+        ...(data.locationId !== undefined ? { locationId: data.locationId } : {}),
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.type !== undefined ? { type: data.type } : {}),
+        ...(data.capacity !== undefined ? { capacity: data.capacity } : {}),
+        ...(data.description !== undefined ? { description: data.description } : {}),
+        ...(data.amenities !== undefined ? { amenities: data.amenities } : {}),
+      },
+      include: {
+        location: true,
+      },
+    });
+  }
+
+  async updateStatus(
+    id: string,
+    status: "ACTIVE" | "INACTIVE"
+  ): Promise<SpaceWithLocation> {
+    return prisma.space.update({
+      where: { id },
+      data: { status },
+      include: {
+        location: true,
+      },
+    });
+  }
 }
 
 export const spacesRepository = new SpacesRepository();

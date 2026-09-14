@@ -47,3 +47,34 @@ export const reservationFilterSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
 });
+
+export const adminCancelReservationSchema = z.object({
+  reason: z
+    .string()
+    .min(5, { message: "Cancellation reason must be at least 5 characters" })
+    .max(500, { message: "Cancellation reason cannot exceed 500 characters" }),
+});
+
+export const adminReservationFilterSchema = z
+  .object({
+    spaceId: z.string().uuid({ message: "spaceId must be a valid UUID" }).optional(),
+    userId: z.string().uuid({ message: "userId must be a valid UUID" }).optional(),
+    status: z.enum(["CONFIRMED", "CANCELLED"]).optional(),
+    from: z.string().datetime({ message: "from must be a valid ISO 8601 datetime" }).optional(),
+    to: z.string().datetime({ message: "to must be a valid ISO 8601 datetime" }).optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .refine(
+    (data) => {
+      if (data.from && data.to) {
+        return new Date(data.to).getTime() >= new Date(data.from).getTime();
+      }
+      return true;
+    },
+    {
+      message: "to must be on or after from",
+      path: ["to"],
+    }
+  );
+

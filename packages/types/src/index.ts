@@ -242,3 +242,83 @@ export interface ReservationFilterQuery {
   page?: number;
   pageSize?: number;
 }
+
+// ============================================================================
+// Audit Log DTOs
+// ============================================================================
+
+export interface AuditLogDto extends AuditLog {
+  actorUser?: UserDto | null;
+}
+
+export interface AuditLogFilterQuery {
+  entityType?: string;
+  action?: string;
+  actorUserId?: string;
+  from?: string;
+  to?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+// ============================================================================
+// Administrative Domain DTOs
+// ============================================================================
+
+export interface CreateSpaceInput {
+  locationId: string;
+  name: string;
+  type: SpaceType;
+  capacity: number;
+  description?: string;
+  amenities?: string[];
+}
+
+export interface UpdateSpaceInput {
+  locationId?: string;
+  name?: string;
+  type?: SpaceType;
+  capacity?: number;
+  description?: string;
+  amenities?: string[];
+}
+
+export interface UpdateSpaceStatusInput {
+  status: SpaceStatus;
+}
+
+export interface AdminCancelReservationInput {
+  reason: string;
+}
+
+export interface AdminReservationFilterQuery {
+  spaceId?: string;
+  userId?: string;
+  status?: ReservationStatus;
+  from?: string;
+  to?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminUserFilterQuery {
+  role?: UserRole;
+  status?: UserStatus;
+  search?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface UpdateUserStatusInput {
+  status: UserStatus;
+}
+
+export interface AdminDashboardMetrics {
+  totalActiveSpaces: number;
+  totalCapacity: number;
+  todayReservationsCount: number;
+  upcoming24hReservationsCount: number;
+  todayUtilizationPercentage: number;
+  recentAuditLogs: AuditLogDto[];
+}
+

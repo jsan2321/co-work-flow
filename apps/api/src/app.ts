@@ -14,6 +14,7 @@ import { authRouter } from "./modules/auth/auth.routes.js";
 import { usersRouter } from "./modules/users/users.routes.js";
 import { spacesRouter } from "./modules/spaces/spaces.routes.js";
 import { reservationsRouter } from "./modules/reservations/reservations.routes.js";
+import { adminRouter } from "./modules/admin/admin.routes.js";
 
 export function createApp(): Express {
   const app = express();
@@ -56,6 +57,7 @@ export function createApp(): Express {
   app.use("/api/v1/users", usersRouter);
   app.use("/api/v1/spaces", spacesRouter);
   app.use("/api/v1/reservations", reservationsRouter);
+  app.use("/api/v1/admin", adminRouter);
 
   // 404 & Error Handlers
   app.use(notFoundHandlerMiddleware);

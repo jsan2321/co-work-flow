@@ -1,6 +1,8 @@
 import type { SpaceFilterQuery, SpaceDto, TimeIntervalDto, PaginationMeta } from "@coworkflow/types";
 import type { ISpacesRepository, ISpacesService, SpaceWithLocation } from "./spaces.types.js";
 import { spacesRepository } from "./spaces.repository.js";
+import { locationsService, LocationsService } from "../locations/locations.service.js";
+import { auditService, AuditService } from "../audit/audit.service.js";
 import { NotFoundError } from "../../shared/errors/app-error.js";
 
 function toSpaceDto(space: SpaceWithLocation): SpaceDto {
@@ -28,7 +30,11 @@ function toSpaceDto(space: SpaceWithLocation): SpaceDto {
 }
 
 export class SpacesService implements ISpacesService {
-  constructor(private readonly repo: ISpacesRepository = spacesRepository) {}
+  constructor(
+    private readonly repo: ISpacesRepository = spacesRepository,
+    private readonly locations: LocationsService = locationsService,
+    private readonly audit: AuditService = auditService
+  ) {}
 
   async listSpaces(
     query: SpaceFilterQuery
@@ -94,6 +100,111 @@ export class SpacesService implements ISpacesService {
         endAt: i.endAt.toISOString(),
       })),
     };
+  }
+
+  async createSpace(
+    adminUserId: string,
+    correlationId: string,
+    input: {
+      locationId: string;
+      name: string;
+      type: "DESK" | "MEETING_ROOM" | "PRIVATE_OFFICE";
+      capacity: number;
+      description?: string;
+      amenities?: string[];
+    }
+  ): Promise<SpaceDto> {
+    const location = await this.locations.getLocationById(input.locationId);
+    if (!location || location.status !== "ACTIVE") {
+      throw new NotFoundError("Location not found or inactive");
+    }
+
+    const space = await this.repo.create(input);
+
+    await this.audit.emit({
+      actorUserId: adminUserId,
+      action: "SPACE_CREATED",
+      entityType: "SPACE",
+      entityId: space.id,
+      metadata: {
+        name: space.name,
+        type: space.type,
+        capacity: space.capacity,
+        locationId: space.locationId,
+      },
+      correlationId,
+    });
+
+    return toSpaceDto(space);
+  }
+
+  async updateSpace(
+    adminUserId: string,
+    correlationId: string,
+    id: string,
+    input: {
+      locationId?: string;
+      name?: string;
+      type?: "DESK" | "MEETING_ROOM" | "PRIVATE_OFFICE";
+      capacity?: number;
+      description?: string;
+      amenities?: string[];
+    }
+  ): Promise<SpaceDto> {
+    const existing = await this.repo.findById(id);
+    if (!existing) {
+      throw new NotFoundError("Space not found");
+    }
+
+    if (input.locationId) {
+      const location = await this.locations.getLocationById(input.locationId);
+      if (!location || location.status !== "ACTIVE") {
+        throw new NotFoundError("Location not found or inactive");
+      }
+    }
+
+    const updated = await this.repo.update(id, input);
+
+    await this.audit.emit({
+      actorUserId: adminUserId,
+      action: "SPACE_UPDATED",
+      entityType: "SPACE",
+      entityId: updated.id,
+      metadata: {
+        updatedFields: Object.keys(input),
+      },
+      correlationId,
+    });
+
+    return toSpaceDto(updated);
+  }
+
+  async updateSpaceStatus(
+    adminUserId: string,
+    correlationId: string,
+    id: string,
+    status: "ACTIVE" | "INACTIVE"
+  ): Promise<SpaceDto> {
+    const existing = await this.repo.findById(id);
+    if (!existing) {
+      throw new NotFoundError("Space not found");
+    }
+
+    const updated = await this.repo.updateStatus(id, status);
+
+    await this.audit.emit({
+      actorUserId: adminUserId,
+      action: "SPACE_STATUS_CHANGED",
+      entityType: "SPACE",
+      entityId: updated.id,
+      metadata: {
+        previousStatus: existing.status,
+        newStatus: status,
+      },
+      correlationId,
+    });
+
+    return toSpaceDto(updated);
   }
 }
 

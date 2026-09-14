@@ -75,3 +75,31 @@ export async function seedTestUsersAndSpace() {
     tokenB,
   };
 }
+
+export async function seedAdminUser() {
+  const suffix = Math.random().toString(36).substring(2, 8);
+  const passwordHash = await hashPassword("AdminPassword123!");
+  const adminEmail = `test_admin_${Date.now()}_${suffix}@coworkflow.com`;
+
+  const adminUser = await prisma.user.create({
+    data: {
+      email: adminEmail,
+      passwordHash,
+      firstName: "Super",
+      lastName: "Admin",
+      role: "ADMIN",
+      status: "ACTIVE",
+    },
+  });
+
+  const adminToken = generateAccessToken({
+    sub: adminUser.id,
+    email: adminUser.email,
+    role: adminUser.role,
+  });
+
+  return {
+    adminUser,
+    adminToken,
+  };
+}

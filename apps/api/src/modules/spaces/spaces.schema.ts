@@ -32,3 +32,26 @@ export const availabilityQuerySchema = z
       path: ["endDate"],
     }
   );
+
+export const createSpaceSchema = z.object({
+  locationId: z.string().uuid({ message: "locationId must be a valid UUID" }),
+  name: z.string().min(1, { message: "name is required" }).max(100),
+  type: z.enum(["DESK", "MEETING_ROOM", "PRIVATE_OFFICE"]),
+  capacity: z.number().int().min(1, { message: "capacity must be at least 1" }),
+  description: z.string().max(1000).optional(),
+  amenities: z.array(z.string()).default([]),
+});
+
+export const updateSpaceSchema = z.object({
+  locationId: z.string().uuid({ message: "locationId must be a valid UUID" }).optional(),
+  name: z.string().min(1).max(100).optional(),
+  type: z.enum(["DESK", "MEETING_ROOM", "PRIVATE_OFFICE"]).optional(),
+  capacity: z.number().int().min(1).optional(),
+  description: z.string().max(1000).optional(),
+  amenities: z.array(z.string()).optional(),
+});
+
+export const updateSpaceStatusSchema = z.object({
+  status: z.enum(["ACTIVE", "INACTIVE"]),
+});
+

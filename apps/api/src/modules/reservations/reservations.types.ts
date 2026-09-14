@@ -3,6 +3,7 @@ import type {
   CreateReservationInput,
   ReservationDto,
   ReservationFilterQuery,
+  AdminReservationFilterQuery,
   PaginationMeta,
   UserRole,
 } from "@coworkflow/types";
@@ -28,7 +29,17 @@ export interface IReservationsRepository {
     take: number
   ): Promise<ReservationWithRelations[]>;
   countByUser(userId: string, filters: ReservationFilterQuery): Promise<number>;
-  cancel(id: string, cancelledByUserId: string): Promise<ReservationWithRelations>;
+  findAdminMany(
+    filters: AdminReservationFilterQuery,
+    skip: number,
+    take: number
+  ): Promise<ReservationWithRelations[]>;
+  countAdmin(filters: AdminReservationFilterQuery): Promise<number>;
+  cancel(
+    id: string,
+    cancelledByUserId: string,
+    reason?: string
+  ): Promise<ReservationWithRelations>;
 }
 
 export interface IReservationsService {
@@ -49,5 +60,14 @@ export interface IReservationsService {
     userId: string,
     userRole: UserRole,
     reservationId: string
+  ): Promise<ReservationDto>;
+  adminListReservations(
+    query: AdminReservationFilterQuery
+  ): Promise<{ data: ReservationDto[]; meta: PaginationMeta }>;
+  adminCancelReservation(
+    adminUserId: string,
+    correlationId: string,
+    reservationId: string,
+    reason: string
   ): Promise<ReservationDto>;
 }

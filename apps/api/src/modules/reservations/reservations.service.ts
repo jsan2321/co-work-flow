@@ -2,12 +2,14 @@ import type {
   CreateReservationInput,
   ReservationDto,
   ReservationFilterQuery,
+  AdminReservationFilterQuery,
   PaginationMeta,
   UserRole,
 } from "@coworkflow/types";
 import type { IReservationsRepository, IReservationsService, ReservationWithRelations } from "./reservations.types.js";
 import { reservationsRepository } from "./reservations.repository.js";
 import { spacesService, SpacesService } from "../spaces/spaces.service.js";
+import { auditService, AuditService } from "../audit/audit.service.js";
 import {
   NotFoundError,
   ValidationError,
@@ -73,7 +75,8 @@ function toReservationDto(res: ReservationWithRelations): ReservationDto {
 export class ReservationsService implements IReservationsService {
   constructor(
     private readonly repo: IReservationsRepository = reservationsRepository,
-    private readonly spaces: SpacesService = spacesService
+    private readonly spaces: SpacesService = spacesService,
+    private readonly audit: AuditService = auditService
   ) {}
 
   async createReservation(
@@ -188,6 +191,72 @@ export class ReservationsService implements IReservationsService {
     }
 
     const cancelled = await this.repo.cancel(reservationId, userId);
+    return toReservationDto(cancelled);
+  }
+
+  async adminListReservations(
+    query: AdminReservationFilterQuery
+  ): Promise<{ data: ReservationDto[]; meta: PaginationMeta }> {
+    const page = query.page || 1;
+    const pageSize = query.pageSize || 20;
+    const skip = (page - 1) * pageSize;
+
+    const [reservations, total] = await Promise.all([
+      this.repo.findAdminMany(query, skip, pageSize),
+      this.repo.countAdmin(query),
+    ]);
+
+    const totalPages = Math.ceil(total / pageSize) || 1;
+
+    return {
+      data: reservations.map(toReservationDto),
+      meta: {
+        page,
+        pageSize,
+        total,
+        totalPages,
+      },
+    };
+  }
+
+  async adminCancelReservation(
+    adminUserId: string,
+    correlationId: string,
+    reservationId: string,
+    reason: string
+  ): Promise<ReservationDto> {
+    const reservation = await this.repo.findById(reservationId);
+    if (!reservation) {
+      throw new NotFoundError("Reservation not found");
+    }
+
+    if (reservation.status === "CANCELLED") {
+      return toReservationDto(reservation);
+    }
+
+    const cancelled = await this.repo.cancel(reservationId, adminUserId, reason);
+
+    await this.audit.emit({
+      actorUserId: adminUserId,
+      action: "RESERVATION_CANCELLED_BY_ADMIN",
+      entityType: "RESERVATION",
+      entityId: reservationId,
+      metadata: {
+        oldState: {
+          status: reservation.status,
+          startAt: reservation.startAt.toISOString(),
+          endAt: reservation.endAt.toISOString(),
+        },
+        newState: {
+          status: cancelled.status,
+          cancellationReason: reason,
+          cancelledByUserId: adminUserId,
+          cancelledAt: cancelled.cancelledAt?.toISOString(),
+        },
+      },
+      correlationId,
+    });
+
     return toReservationDto(cancelled);
   }
 }
