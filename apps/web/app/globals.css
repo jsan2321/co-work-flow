@@ -25,18 +25,23 @@
   /* Secondary Accents — Workspace Teal */
   --teal-primary: #286c68;
   --teal-hover: #1c4e4b;
-  --teal-soft: #d4e5e3;
+  --teal-soft: #dcecea;
 
-  /* Functional Accents */
+  /* Functional Accents — Terracotta / Warning / Error */
   --terracotta-primary: #b85445;
-  --terracotta-soft: #f7ddd9;
-  --amber-primary: #c98a2c;
-  --amber-soft: #f8edd6;
+  --terracotta-hover: #9c3f32;
+  --terracotta-soft: #f3d8d3;
+
+  /* Success Accents — Architectural Green */
+  --green-primary: #3f7758;
+  --green-hover: #2e5941;
+  --green-soft: #ddebe2;
 
   /* Radii */
   --radius-button: 6px;
   --radius-card: 8px;
-  --radius-badge: 4px;
+  --radius-dialog: 12px;
+  --radius-badge: 9999px;
 }
 
 @theme {
@@ -62,7 +67,12 @@
   --color-teal-soft: var(--teal-soft);
 
   --color-terracotta: var(--terracotta-primary);
+  --color-terracotta-hover: var(--terracotta-hover);
   --color-terracotta-soft: var(--terracotta-soft);
+
+  --color-green: var(--green-primary);
+  --color-green-hover: var(--green-hover);
+  --color-green-soft: var(--green-soft);
 
   --font-serif: var(--font-source-serif), Georgia, serif;
   --font-sans: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
@@ -81,4 +91,25 @@ h2,
 h3,
 .font-display {
   font-family: var(--font-serif);
+}
+
+/* Custom focus ring styling for WCAG AA compliance */
+*:focus-visible {
+  outline: 2px solid var(--gold-primary);
+  outline-offset: 2px;
+}
+
+/* Tactile micro-interactions */
+.tactile-press {
+  transition: transform 100ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tactile-press:active {
+  transform: scale(0.97);
+}
+
+/* Subtle architectural divider */
+.architectural-divider {
+  border: 0;
+  height: 1px;
+  background-color: var(--border-default);
 }

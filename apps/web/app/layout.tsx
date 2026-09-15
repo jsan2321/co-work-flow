@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Source_Serif_4, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
@@ -27,8 +30,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${sourceSerif.variable} ${spaceGrotesk.variable}`}>
-      <body className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] antialiased">
-        {children}
+      <body className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] antialiased flex flex-col">
+        <Providers>
+          <Navbar />
+          <div className="flex-1 flex flex-col">{children}</div>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );
