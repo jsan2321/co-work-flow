@@ -138,10 +138,7 @@ export class SpacesRepository implements ISpacesRepository {
     });
   }
 
-  async updateStatus(
-    id: string,
-    status: "ACTIVE" | "INACTIVE"
-  ): Promise<SpaceWithLocation> {
+  async updateStatus(id: string, status: "ACTIVE" | "INACTIVE"): Promise<SpaceWithLocation> {
     return prisma.space.update({
       where: { id },
       data: { status },

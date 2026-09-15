@@ -1,4 +1,9 @@
-import type { SpaceFilterQuery, SpaceDto, TimeIntervalDto, PaginationMeta } from "@coworkflow/types";
+import type {
+  SpaceFilterQuery,
+  SpaceDto,
+  TimeIntervalDto,
+  PaginationMeta,
+} from "@coworkflow/types";
 import type { ISpacesRepository, ISpacesService, SpaceWithLocation } from "./spaces.types.js";
 import { spacesRepository } from "./spaces.repository.js";
 import { locationsService, LocationsService } from "../locations/locations.service.js";
@@ -36,9 +41,7 @@ export class SpacesService implements ISpacesService {
     private readonly audit: AuditService = auditService
   ) {}
 
-  async listSpaces(
-    query: SpaceFilterQuery
-  ): Promise<{ data: SpaceDto[]; meta: PaginationMeta }> {
+  async listSpaces(query: SpaceFilterQuery): Promise<{ data: SpaceDto[]; meta: PaginationMeta }> {
     const page = query.page || 1;
     const pageSize = query.pageSize || 20;
     const skip = (page - 1) * pageSize;
@@ -87,11 +90,7 @@ export class SpacesService implements ISpacesService {
       throw new NotFoundError("Space not found");
     }
 
-    const intervals = await this.repo.getConfirmedReservationIntervals(
-      spaceId,
-      startDate,
-      endDate
-    );
+    const intervals = await this.repo.getConfirmedReservationIntervals(spaceId, startDate, endDate);
 
     return {
       spaceId,

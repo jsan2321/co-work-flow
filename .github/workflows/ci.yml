@@ -1,0 +1,175 @@
+name: CoWorkFlow CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Code Formatting Check
+        run: npm run format:check
+
+      - name: Build Types Package
+        run: npm run build --workspace=@coworkflow/types
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate --workspace=@coworkflow/api
+
+      - name: Static Lint Analysis
+        run: npm run lint
+
+      - name: Monorepo Typecheck
+        run: npm run typecheck
+
+  api-and-concurrency-gate:
+    name: API Tests & Concurrency Gate
+    needs: [lint-and-typecheck]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: coworkflow
+          POSTGRES_PASSWORD: coworkflow_dev_password
+          POSTGRES_DB: coworkflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: "postgresql://coworkflow:coworkflow_dev_password@localhost:5432/coworkflow"
+      JWT_SECRET: "ci_jwt_secret_at_least_32_characters_long"
+      PORT: 4000
+      NODE_ENV: "test"
+      CORS_ORIGIN: "http://localhost:3000"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Types Package
+        run: npm run build --workspace=@coworkflow/types
+
+      - name: Initialize Prisma & Custom GiST Migrations
+        run: |
+          npx prisma db push --schema=apps/api/src/prisma/schema.prisma --accept-data-loss
+          npm run prisma:seed --workspace=@coworkflow/api
+
+      - name: Run API Unit & Integration Tests
+        run: npm run test --workspace=@coworkflow/api
+
+      - name: Concurrency Gate — 20 Iteration Race Test
+        run: npm run test:concurrency --workspace=@coworkflow/api
+
+  e2e-and-build:
+    name: Production Build & Playwright E2E
+    needs: [api-and-concurrency-gate]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: coworkflow
+          POSTGRES_PASSWORD: coworkflow_dev_password
+          POSTGRES_DB: coworkflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: "postgresql://coworkflow:coworkflow_dev_password@localhost:5432/coworkflow"
+      JWT_SECRET: "ci_jwt_secret_at_least_32_characters_long"
+      PORT: 4000
+      NODE_ENV: "development"
+      NEXT_PUBLIC_API_URL: "http://localhost:4000/api/v1"
+      CORS_ORIGIN: "http://localhost:3000"
+      CI: "true"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build All Workspaces
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Seed Database
+        run: |
+          npx prisma db push --schema=apps/api/src/prisma/schema.prisma --accept-data-loss
+          npm run prisma:seed --workspace=@coworkflow/api
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Execute Playwright E2E Journey Suite
+        run: npm run test:e2e
+
+      - name: Upload Playwright Artifacts on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/e2e/playwright-report/
+          retention-days: 14
+
+  docker-validation:
+    name: Production Docker Build Validation
+    needs: [lint-and-typecheck]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate API Production Multi-Stage Dockerfile
+        run: docker build -f apps/api/Dockerfile --target runner -t coworkflow-api:ci-check .
+
+      - name: Validate Web Production Multi-Stage Dockerfile
+        run: docker build -f apps/web/Dockerfile --target runner -t coworkflow-web:ci-check .

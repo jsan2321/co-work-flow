@@ -6,18 +6,30 @@ import type {
   PaginationMeta,
   UserRole,
 } from "@coworkflow/types";
-import type { IReservationsRepository, IReservationsService, ReservationWithRelations } from "./reservations.types.js";
+import type {
+  IReservationsRepository,
+  IReservationsService,
+  ReservationWithRelations,
+} from "./reservations.types.js";
 import { reservationsRepository } from "./reservations.repository.js";
 import { spacesService, SpacesService } from "../spaces/spaces.service.js";
 import { auditService, AuditService } from "../audit/audit.service.js";
-import {
-  NotFoundError,
-  ValidationError,
-  ForbiddenError,
-} from "../../shared/errors/app-error.js";
+import { NotFoundError, ValidationError, ForbiddenError } from "../../shared/errors/app-error.js";
 
 function toReservationDto(res: ReservationWithRelations): ReservationDto {
-  const spaceLocation = (res.space as unknown as { location?: { id: string; name: string; address: string; timezone: string; status: "ACTIVE" | "INACTIVE"; createdAt: Date; updatedAt: Date } }).location;
+  const spaceLocation = (
+    res.space as unknown as {
+      location?: {
+        id: string;
+        name: string;
+        address: string;
+        timezone: string;
+        status: "ACTIVE" | "INACTIVE";
+        createdAt: Date;
+        updatedAt: Date;
+      };
+    }
+  ).location;
 
   return {
     id: res.id,
@@ -79,10 +91,7 @@ export class ReservationsService implements IReservationsService {
     private readonly audit: AuditService = auditService
   ) {}
 
-  async createReservation(
-    userId: string,
-    input: CreateReservationInput
-  ): Promise<ReservationDto> {
+  async createReservation(userId: string, input: CreateReservationInput): Promise<ReservationDto> {
     const space = await this.spaces.getActiveSpaceById(input.spaceId);
     if (!space) {
       throw new NotFoundError("Space not found or unavailable");

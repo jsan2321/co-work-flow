@@ -54,7 +54,9 @@ describe("Audit Logging & Immutability Integration Tests", () => {
       }
 
       expect(updateError).not.toBeNull();
-      expect(updateError!.message).toMatch(/Audit logs are immutable.*UPDATE and DELETE operations are forbidden/i);
+      expect(updateError!.message).toMatch(
+        /Audit logs are immutable.*UPDATE and DELETE operations are forbidden/i
+      );
 
       // Verify record was NOT modified
       const record = await prisma.auditLog.findUnique({ where: { id: log.id } });
@@ -74,16 +76,15 @@ describe("Audit Logging & Immutability Integration Tests", () => {
 
       let deleteError: Error | null = null;
       try {
-        await prisma.$executeRawUnsafe(
-          `DELETE FROM audit_log WHERE id = $1::uuid`,
-          log.id
-        );
+        await prisma.$executeRawUnsafe(`DELETE FROM audit_log WHERE id = $1::uuid`, log.id);
       } catch (err) {
         deleteError = err as Error;
       }
 
       expect(deleteError).not.toBeNull();
-      expect(deleteError!.message).toMatch(/Audit logs are immutable.*UPDATE and DELETE operations are forbidden/i);
+      expect(deleteError!.message).toMatch(
+        /Audit logs are immutable.*UPDATE and DELETE operations are forbidden/i
+      );
 
       // Verify record still exists
       const record = await prisma.auditLog.findUnique({ where: { id: log.id } });

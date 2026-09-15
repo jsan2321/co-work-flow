@@ -7,20 +7,14 @@ export const createReservationSchema = z
     endAt: z.string().datetime({ message: "endAt must be a valid ISO 8601 datetime" }),
     purpose: z.string().max(500, { message: "purpose cannot exceed 500 characters" }).optional(),
   })
-  .refine(
-    (data) => new Date(data.startAt).getTime() > Date.now(),
-    {
-      message: "startAt must be in the future",
-      path: ["startAt"],
-    }
-  )
-  .refine(
-    (data) => new Date(data.endAt).getTime() > new Date(data.startAt).getTime(),
-    {
-      message: "endAt must be strictly after startAt",
-      path: ["endAt"],
-    }
-  )
+  .refine((data) => new Date(data.startAt).getTime() > Date.now(), {
+    message: "startAt must be in the future",
+    path: ["startAt"],
+  })
+  .refine((data) => new Date(data.endAt).getTime() > new Date(data.startAt).getTime(), {
+    message: "endAt must be strictly after startAt",
+    path: ["endAt"],
+  })
   .refine(
     (data) => {
       const diff = new Date(data.endAt).getTime() - new Date(data.startAt).getTime();
@@ -77,4 +71,3 @@ export const adminReservationFilterSchema = z
       path: ["to"],
     }
   );
-

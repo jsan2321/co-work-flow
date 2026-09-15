@@ -10,11 +10,7 @@ import type {
 export interface IUsersRepository {
   findById(id: string): Promise<User | null>;
   update(id: string, data: { firstName?: string; lastName?: string }): Promise<User>;
-  findManyWithFilters(
-    filters: AdminUserFilterQuery,
-    skip: number,
-    take: number
-  ): Promise<User[]>;
+  findManyWithFilters(filters: AdminUserFilterQuery, skip: number, take: number): Promise<User[]>;
   countWithFilters(filters: AdminUserFilterQuery): Promise<number>;
   updateStatus(id: string, status: UserStatus): Promise<User>;
   revokeUserRefreshTokens(userId: string): Promise<number>;
@@ -23,9 +19,7 @@ export interface IUsersRepository {
 export interface IUsersService {
   getProfile(userId: string): Promise<UserDto>;
   updateProfile(userId: string, input: UpdateProfileInput): Promise<UserDto>;
-  adminListUsers(
-    query: AdminUserFilterQuery
-  ): Promise<{ data: UserDto[]; meta: PaginationMeta }>;
+  adminListUsers(query: AdminUserFilterQuery): Promise<{ data: UserDto[]; meta: PaginationMeta }>;
   updateUserStatus(
     adminUserId: string,
     correlationId: string,
@@ -33,4 +27,3 @@ export interface IUsersService {
     status: UserStatus
   ): Promise<UserDto>;
 }
-

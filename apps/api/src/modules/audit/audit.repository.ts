@@ -35,7 +35,10 @@ export class AuditRepository implements IAuditRepository {
     const where: Prisma.AuditLogWhereInput = {};
 
     if (filters.entityType) {
-      where.entityType = filters.entityType;
+      where.entityType = {
+        equals: filters.entityType,
+        mode: "insensitive",
+      };
     }
     if (filters.action) {
       where.action = filters.action;
@@ -68,7 +71,10 @@ export class AuditRepository implements IAuditRepository {
     const where: Prisma.AuditLogWhereInput = {};
 
     if (filters.entityType) {
-      where.entityType = filters.entityType;
+      where.entityType = {
+        equals: filters.entityType,
+        mode: "insensitive",
+      };
     }
     if (filters.action) {
       where.action = filters.action;

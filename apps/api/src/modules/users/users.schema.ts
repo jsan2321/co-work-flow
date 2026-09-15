@@ -15,12 +15,9 @@ export const updateProfileSchema = z
       .max(100, "Last name cannot exceed 100 characters")
       .optional(),
   })
-  .refine(
-    (data) => data.firstName !== undefined || data.lastName !== undefined,
-    {
-      message: "At least one field (firstName or lastName) must be provided for update",
-    }
-  );
+  .refine((data) => data.firstName !== undefined || data.lastName !== undefined, {
+    message: "At least one field (firstName or lastName) must be provided for update",
+  });
 
 export const adminUserFilterSchema = z.object({
   role: z.enum(["ADMIN", "MEMBER"]).optional(),
@@ -35,4 +32,3 @@ export const updateUserStatusSchema = z.object({
     errorMap: () => ({ message: "Status must be ACTIVE or DEACTIVATED" }),
   }),
 });
-

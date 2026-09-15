@@ -35,18 +35,11 @@ export interface IReservationsRepository {
     take: number
   ): Promise<ReservationWithRelations[]>;
   countAdmin(filters: AdminReservationFilterQuery): Promise<number>;
-  cancel(
-    id: string,
-    cancelledByUserId: string,
-    reason?: string
-  ): Promise<ReservationWithRelations>;
+  cancel(id: string, cancelledByUserId: string, reason?: string): Promise<ReservationWithRelations>;
 }
 
 export interface IReservationsService {
-  createReservation(
-    userId: string,
-    input: CreateReservationInput
-  ): Promise<ReservationDto>;
+  createReservation(userId: string, input: CreateReservationInput): Promise<ReservationDto>;
   getReservationById(
     userId: string,
     userRole: UserRole,

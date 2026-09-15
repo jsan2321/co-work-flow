@@ -15,11 +15,7 @@ export interface IAuditRepository {
     correlationId: string;
   }): Promise<AuditLogWithActor>;
 
-  findMany(
-    filters: AuditLogFilterQuery,
-    skip: number,
-    take: number
-  ): Promise<AuditLogWithActor[]>;
+  findMany(filters: AuditLogFilterQuery, skip: number, take: number): Promise<AuditLogWithActor[]>;
 
   count(filters: AuditLogFilterQuery): Promise<number>;
 }
@@ -34,7 +30,5 @@ export interface IAuditService {
     correlationId: string;
   }): Promise<AuditLogDto>;
 
-  listAuditLogs(
-    query: AuditLogFilterQuery
-  ): Promise<{ data: AuditLogDto[]; meta: PaginationMeta }>;
+  listAuditLogs(query: AuditLogFilterQuery): Promise<{ data: AuditLogDto[]; meta: PaginationMeta }>;
 }

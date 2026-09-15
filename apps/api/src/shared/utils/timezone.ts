@@ -6,8 +6,16 @@ export function isValidIanaTimezone(timeZone: string): boolean {
   }
 
   if (!supportedTimeZones) {
-    if (typeof Intl !== "undefined" && typeof (Intl as unknown as { supportedValuesOf?: (key: string) => string[] }).supportedValuesOf === "function") {
-      supportedTimeZones = new Set((Intl as unknown as { supportedValuesOf: (key: string) => string[] }).supportedValuesOf("timeZone"));
+    if (
+      typeof Intl !== "undefined" &&
+      typeof (Intl as unknown as { supportedValuesOf?: (key: string) => string[] })
+        .supportedValuesOf === "function"
+    ) {
+      supportedTimeZones = new Set(
+        (Intl as unknown as { supportedValuesOf: (key: string) => string[] }).supportedValuesOf(
+          "timeZone"
+        )
+      );
     } else {
       supportedTimeZones = new Set();
     }
@@ -33,12 +41,7 @@ export function normalizeToUtc(input: string | Date): Date {
   return date;
 }
 
-export function doIntervalsOverlap(
-  startA: Date,
-  endA: Date,
-  startB: Date,
-  endB: Date
-): boolean {
+export function doIntervalsOverlap(startA: Date, endA: Date, startB: Date, endB: Date): boolean {
   // Half-open interval semantics [start, end)
   // Two intervals [A_start, A_end) and [B_start, B_end) overlap iff A_start < B_end && A_end > B_start
   return startA.getTime() < endB.getTime() && endA.getTime() > startB.getTime();

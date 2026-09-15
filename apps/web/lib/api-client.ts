@@ -35,6 +35,17 @@ export class ApiError extends Error {
   }
 }
 
+function generateUUID(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 async function refreshAccessToken(): Promise<string | null> {
   if (refreshPromise) {
     return refreshPromise;
@@ -46,7 +57,7 @@ async function refreshAccessToken(): Promise<string | null> {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Request-Id": `req_${Math.random().toString(36).substring(2, 9)}`,
+          "X-Request-Id": generateUUID(),
         },
         credentials: "include", // Sends the HttpOnly refresh_token cookie
       });
@@ -102,7 +113,7 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
     }
   }
 
-  const requestId = `req_${Math.random().toString(36).substring(2, 10)}`;
+  const requestId = generateUUID();
   const requestHeaders = new Headers(headers);
 
   if (!requestHeaders.has("Content-Type") && !(restOptions.body instanceof FormData)) {

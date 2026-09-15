@@ -1,8 +1,18 @@
 import crypto from "node:crypto";
 import type { RegisterInput, LoginInput, UserDto } from "@coworkflow/types";
-import type { IAuthRepository, IAuthService, AuthSessionResult, RefreshResult } from "./auth.types.js";
+import type {
+  IAuthRepository,
+  IAuthService,
+  AuthSessionResult,
+  RefreshResult,
+} from "./auth.types.js";
 import { authRepository } from "./auth.repository.js";
-import { hashPassword, verifyPassword, generateRawToken, hashToken } from "../../shared/utils/crypto.js";
+import {
+  hashPassword,
+  verifyPassword,
+  generateRawToken,
+  hashToken,
+} from "../../shared/utils/crypto.js";
 import { generateAccessToken } from "../../shared/utils/jwt.js";
 import { validatePasswordPolicy } from "../../shared/utils/password-policy.js";
 import { ConflictError, UnauthorizedError, ForbiddenError } from "../../shared/errors/app-error.js";

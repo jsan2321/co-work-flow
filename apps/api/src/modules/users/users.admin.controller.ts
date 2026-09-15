@@ -1,8 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import {
-  adminUserFilterSchema,
-  updateUserStatusSchema,
-} from "./users.schema.js";
+import { adminUserFilterSchema, updateUserStatusSchema } from "./users.schema.js";
 import { usersService } from "./users.service.js";
 import { UnauthorizedError } from "../../shared/errors/app-error.js";
 

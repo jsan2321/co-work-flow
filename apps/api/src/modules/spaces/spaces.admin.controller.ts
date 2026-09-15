@@ -1,9 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import {
-  createSpaceSchema,
-  updateSpaceSchema,
-  updateSpaceStatusSchema,
-} from "./spaces.schema.js";
+import { createSpaceSchema, updateSpaceSchema, updateSpaceStatusSchema } from "./spaces.schema.js";
 import { spacesService } from "./spaces.service.js";
 import { UnauthorizedError } from "../../shared/errors/app-error.js";
 
@@ -18,11 +14,7 @@ export async function createSpaceHandler(
     }
 
     const input = createSpaceSchema.parse(req.body);
-    const space = await spacesService.createSpace(
-      req.user.sub,
-      req.correlationId,
-      input
-    );
+    const space = await spacesService.createSpace(req.user.sub, req.correlationId, input);
 
     res.status(201).json({ data: space });
   } catch (error) {
@@ -42,12 +34,7 @@ export async function updateSpaceHandler(
 
     const spaceId = req.params.id as string;
     const input = updateSpaceSchema.parse(req.body);
-    const space = await spacesService.updateSpace(
-      req.user.sub,
-      req.correlationId,
-      spaceId,
-      input
-    );
+    const space = await spacesService.updateSpace(req.user.sub, req.correlationId, spaceId, input);
 
     res.status(200).json({ data: space });
   } catch (error) {

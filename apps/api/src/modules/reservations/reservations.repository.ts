@@ -101,7 +101,9 @@ export class ReservationsRepository implements IReservationsRepository {
     return prisma.reservation.count({ where });
   }
 
-  private buildAdminWhereClause(filters: AdminReservationFilterQuery): Prisma.ReservationWhereInput {
+  private buildAdminWhereClause(
+    filters: AdminReservationFilterQuery
+  ): Prisma.ReservationWhereInput {
     const where: Prisma.ReservationWhereInput = {};
 
     if (filters.spaceId) {

@@ -92,12 +92,10 @@ describe("Admin Users Integration Tests", () => {
       expect(activeTokensCount).toBe(0);
 
       // 4. Verify deactivated user cannot log in
-      const loginAttempt = await request(app)
-        .post("/api/v1/auth/login")
-        .send({
-          email: memberUser.email,
-          password: memberPassword,
-        });
+      const loginAttempt = await request(app).post("/api/v1/auth/login").send({
+        email: memberUser.email,
+        password: memberPassword,
+      });
 
       expect(loginAttempt.status).toBe(403);
 
@@ -121,12 +119,10 @@ describe("Admin Users Integration Tests", () => {
       expect(reactivateRes.body.data.status).toBe("ACTIVE");
 
       // 7. Verify member can log in again
-      const loginSuccess = await request(app)
-        .post("/api/v1/auth/login")
-        .send({
-          email: memberUser.email,
-          password: memberPassword,
-        });
+      const loginSuccess = await request(app).post("/api/v1/auth/login").send({
+        email: memberUser.email,
+        password: memberPassword,
+      });
 
       expect(loginSuccess.status).toBe(200);
     });

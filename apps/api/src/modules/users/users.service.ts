@@ -8,10 +8,7 @@ import type {
 import type { IUsersRepository, IUsersService } from "./users.types.js";
 import { usersRepository } from "./users.repository.js";
 import { auditService, AuditService } from "../audit/audit.service.js";
-import {
-  NotFoundError,
-  ForbiddenError,
-} from "../../shared/errors/app-error.js";
+import { NotFoundError, ForbiddenError } from "../../shared/errors/app-error.js";
 
 function toUserDto(user: {
   id: string;

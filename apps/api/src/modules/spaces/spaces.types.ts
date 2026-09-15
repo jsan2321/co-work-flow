@@ -1,5 +1,10 @@
 import type { Space, Location } from "@prisma/client";
-import type { SpaceFilterQuery, SpaceDto, TimeIntervalDto, PaginationMeta } from "@coworkflow/types";
+import type {
+  SpaceFilterQuery,
+  SpaceDto,
+  TimeIntervalDto,
+  PaginationMeta,
+} from "@coworkflow/types";
 
 export interface SpaceWithLocation extends Space {
   location: Location;
@@ -11,11 +16,7 @@ export interface ConfirmedInterval {
 }
 
 export interface ISpacesRepository {
-  findMany(
-    filters: SpaceFilterQuery,
-    skip: number,
-    take: number
-  ): Promise<SpaceWithLocation[]>;
+  findMany(filters: SpaceFilterQuery, skip: number, take: number): Promise<SpaceWithLocation[]>;
   count(filters: SpaceFilterQuery): Promise<number>;
   findById(id: string): Promise<SpaceWithLocation | null>;
   getConfirmedReservationIntervals(
@@ -42,16 +43,11 @@ export interface ISpacesRepository {
       amenities?: string[];
     }
   ): Promise<SpaceWithLocation>;
-  updateStatus(
-    id: string,
-    status: "ACTIVE" | "INACTIVE"
-  ): Promise<SpaceWithLocation>;
+  updateStatus(id: string, status: "ACTIVE" | "INACTIVE"): Promise<SpaceWithLocation>;
 }
 
 export interface ISpacesService {
-  listSpaces(
-    query: SpaceFilterQuery
-  ): Promise<{ data: SpaceDto[]; meta: PaginationMeta }>;
+  listSpaces(query: SpaceFilterQuery): Promise<{ data: SpaceDto[]; meta: PaginationMeta }>;
   getSpaceById(id: string): Promise<SpaceDto>;
   getActiveSpaceById(id: string): Promise<SpaceDto | null>;
   getAvailability(

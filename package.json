@@ -9,6 +9,8 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "dev:api": "npm run dev --workspace=@coworkflow/api",
+    "dev:web": "npm run dev --workspace=@coworkflow/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

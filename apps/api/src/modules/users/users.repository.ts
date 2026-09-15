@@ -81,4 +81,3 @@ export class UsersRepository implements IUsersRepository {
 }
 
 export const usersRepository = new UsersRepository();
-

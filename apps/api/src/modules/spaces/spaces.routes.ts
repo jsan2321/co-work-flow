@@ -1,9 +1,5 @@
 import { Router } from "express";
-import {
-  listSpacesHandler,
-  getSpaceHandler,
-  getAvailabilityHandler,
-} from "./spaces.controller.js";
+import { listSpacesHandler, getSpaceHandler, getAvailabilityHandler } from "./spaces.controller.js";
 import { requireAuth } from "../../shared/middleware/auth.middleware.js";
 
 export const spacesRouter = Router();

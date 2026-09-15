@@ -10,7 +10,7 @@ function getCookieOptions() {
   return {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict" as const,
+    sameSite: (process.env.NODE_ENV === "production" ? "strict" : "lax") as "strict" | "lax",
     path: COOKIE_PATH,
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   };
@@ -30,11 +30,7 @@ export async function registerHandler(
   }
 }
 
-export async function loginHandler(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function loginHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const input = loginSchema.parse(req.body);
     const result = await authService.login(input);

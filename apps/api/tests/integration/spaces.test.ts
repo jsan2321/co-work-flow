@@ -31,18 +31,14 @@ describe("Spaces Integration Tests", () => {
   });
 
   it("filters spaces by type", async () => {
-    const res = await request(app)
-      .get("/api/v1/spaces")
-      .query({ type: "DESK" });
+    const res = await request(app).get("/api/v1/spaces").query({ type: "DESK" });
 
     expect(res.status).toBe(200);
     expect(res.body.data.every((s: { type: string }) => s.type === "DESK")).toBe(true);
   });
 
   it("filters spaces by minCapacity", async () => {
-    const res = await request(app)
-      .get("/api/v1/spaces")
-      .query({ minCapacity: 5 });
+    const res = await request(app).get("/api/v1/spaces").query({ minCapacity: 5 });
 
     expect(res.status).toBe(200);
     expect(res.body.data.every((s: { capacity: number }) => s.capacity >= 5)).toBe(true);
@@ -64,12 +60,10 @@ describe("Spaces Integration Tests", () => {
 
   it("retrieves availability intervals for a space (requires auth)", async () => {
     // Unauthenticated request should fail
-    const unauthRes = await request(app)
-      .get(`/api/v1/spaces/${spaceId}/availability`)
-      .query({
-        startDate: "2026-10-15T00:00:00.000Z",
-        endDate: "2026-10-16T00:00:00.000Z",
-      });
+    const unauthRes = await request(app).get(`/api/v1/spaces/${spaceId}/availability`).query({
+      startDate: "2026-10-15T00:00:00.000Z",
+      endDate: "2026-10-16T00:00:00.000Z",
+    });
 
     expect(unauthRes.status).toBe(401);
 

@@ -321,4 +321,3 @@ export interface AdminDashboardMetrics {
   todayUtilizationPercentage: number;
   recentAuditLogs: AuditLogDto[];
 }
-
